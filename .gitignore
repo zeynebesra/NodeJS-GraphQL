@@ -147,5 +147,6 @@ temp/
 
 graphql-comments/node_modules/
 graphql-project/node_modules/
+graphql-h1/node_modules/
 
 # End of https://www.toptal.com/developers/gitignore/api/node

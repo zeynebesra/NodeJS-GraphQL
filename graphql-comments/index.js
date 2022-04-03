@@ -1,27 +1,64 @@
+const { ApolloServer, gql } = require("apollo-server");
 const {
   ApolloServerPluginLandingPageGraphQLPlayground,
 } = require("apollo-server-core");
 
-const typeDefs = gql`
-  # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
+const { users, posts, comments } = require("./data");
 
-  # This "Book" type defines the queryable fields for every book in our data source.
-  type Book {
-    title: String
-    author: String
+const typeDefs = gql`
+  type User {
+    id: ID!
+    fullName: String!
+    posts: [Post!]!
   }
 
-  # The "Query" type is special: it lists all of the available queries that
-  # clients can execute, along with the return type for each. In this
-  # case, the "books" query returns an array of zero or more Books (defined above).
+  type Post {
+    id: ID!
+    title: String!
+    user_id: ID!
+    user: User!
+  }
+
+  type Comment {
+    id: ID!
+    text: String!
+    post_id: ID!
+  }
+
   type Query {
-    books: [Book]
+    users: [User!]!
+    user(id: ID!): User!
+
+    posts: [Post!]!
+    post(id: ID!): Post!
+
+    comments: [Comment!]!
+    comment(id: ID!): Comment!
   }
 `;
 
 const resolvers = {
   Query: {
-    books: () => books,
+    //user
+    users: () => users,
+    user: (parent, args) => users.find((user) => user.id === args.id),
+    //post
+    posts: () => posts,
+    post: (parent, args) => posts.find((post) => post.id === args.id),
+
+    //comment
+    comments: () => comments,
+    comment: (parent, args) =>
+      comments.find((comment) => comment.id === args.id),
+  },
+  User: {
+    posts: (parent) => posts.filter((post) => post.user_id === parent.id),
+  },
+  Post: {
+    user: (parent) => users.find((user) => user.id === parent.user_id),
+  },
+  Comment: {
+    user: (parent) => users.find((user) => user.id === parent.user_id),
   },
 };
 
